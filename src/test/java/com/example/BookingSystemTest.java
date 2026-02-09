@@ -136,7 +136,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void returnOnlyAvailableRooms () {
+    void returnOnlyAvailableRooms() {
         LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
         LocalDateTime timeInFuture = timeNow.plusHours(1);
 
@@ -164,7 +164,7 @@ class BookingSystemTest {
             "1337-01-29T13:37,", // start time null
             ",1337-01-29T13:38"// end time null
     })
-    void throwExceptionIfAParameterIsNullWhenGetAvailableRooms (LocalDateTime timeNow, LocalDateTime timeInFuture){
+    void throwExceptionIfAParameterIsNullWhenGetAvailableRooms(LocalDateTime timeNow, LocalDateTime timeInFuture){
         assertThatThrownBy(() -> bookingSystem.getAvailableRooms(timeNow, timeInFuture))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Måste ange både start- och sluttid");
@@ -189,7 +189,7 @@ class BookingSystemTest {
     }
 
     @Test
-    void returnsTrueIfBookingIsCancelledSuccessfully () throws NotificationException {
+    void returnsTrueIfBookingIsCancelledSuccessfully() throws NotificationException {
         // Set up data
         String bookingId = "bookingid";
         LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
@@ -237,4 +237,29 @@ class BookingSystemTest {
 
         assertThat(result).isFalse();
     }
+
+    @Test
+    void throwExceptionCantCancelOngoingBooking() {
+        // Set up data
+        String bookingId = "bookingid";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInPast = timeNow.minusHours(1);
+
+        // Mock booking that's ongoing
+        Room room = mock(Room.class);
+        Booking booking = new Booking(bookingId, "room", timeInPast, timeNow);
+
+        // Mock it all
+        when(room.hasBooking(bookingId)).thenReturn(true);
+        when(room.getBooking(bookingId)).thenReturn(booking);
+        when(roomRepository.findAll()).thenReturn(List.of(room));
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+
+        // Make sure exception thrown
+        assertThatThrownBy(() -> bookingSystem.cancelBooking(bookingId))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Kan inte avboka påbörjad eller avslutad bokning");
+    }
+
+
 }
