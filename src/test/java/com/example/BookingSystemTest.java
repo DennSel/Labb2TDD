@@ -125,6 +125,8 @@ class BookingSystemTest {
         when(timeProvider.getCurrentTime()).thenReturn(timeNow);
         when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
         when(room.isAvailable(timeNow, timeInFuture)).thenReturn(false);
+
+        // Had to look this up, not too familiar with it.. Hope it's working.
         doThrow(new NotificationException(""))
                 .when(notificationService).sendBookingConfirmation(any(Booking.class));
 
@@ -259,6 +261,34 @@ class BookingSystemTest {
         assertThatThrownBy(() -> bookingSystem.cancelBooking(bookingId))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("Kan inte avboka påbörjad eller avslutad bokning");
+    }
+
+    @Test
+    void returnTrueIfCancelSuccessfulWhenNotificationFails() throws NotificationException {
+        // Set up data
+        String bookingId = "bookingid";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInPast = timeNow.minusHours(1);
+
+        // Mock booking that's ongoing
+        Room room = mock(Room.class);
+        Booking booking = new Booking(bookingId, "room", timeInPast, timeNow);
+
+        // Mock it all
+        when(room.hasBooking(bookingId)).thenReturn(true);
+        when(room.getBooking(bookingId)).thenReturn(booking);
+        when(roomRepository.findAll()).thenReturn(List.of(room));
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+
+        doThrow(new NotificationException(""))
+                .when(notificationService).sendCancellationConfirmation(any(Booking.class));
+
+        boolean result = bookingSystem.cancelBooking(bookingId);
+
+        assertThat(result).isTrue(); // Return true despite no notif
+        verify(room).removeBooking(bookingId); // Booking removed
+        verify(roomRepository).save(room); // Room removed
+
     }
 
 
