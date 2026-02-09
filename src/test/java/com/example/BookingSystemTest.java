@@ -113,4 +113,24 @@ class BookingSystemTest {
 
         assertThat(result).isFalse();
     }
+
+    @Test
+    void returnTrueIfBookingSuccessfulWhenNotificationFails() throws NotificationException {
+        String roomId = "room";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
+
+        Room room = mock(Room.class);
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(room.isAvailable(timeNow, timeInFuture)).thenReturn(false);
+        doThrow(new NotificationException(""))
+                .when(notificationService).sendBookingConfirmation(any(Booking.class));
+
+        boolean result = bookingSystem.bookRoom(roomId, timeNow, timeInFuture);
+
+        assertThat(result).isTrue();
+        verify(room).addBooking(any(Booking.class)); // Make sure booking is created
+        verify(roomRepository).save(room); // Make sure room is saved
+    }
 }
