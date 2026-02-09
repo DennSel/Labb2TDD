@@ -46,5 +46,12 @@ class CartTest {
         assertThat(cart.isItemPresent("item")).isFalse();
     }
 
+    @Test
+    void removeNonExistingItem() {
+        cart.removeItem("test");
+        assertThat(cart.getItemCount()).isEqualTo(0);
+    }
+
+
 
 }
