@@ -98,4 +98,19 @@ class BookingSystemTest {
         verify(roomRepository).save(room);
     }
 
+    @Test
+    void returnsFalseIfRoomIsUnavailable() {
+        String roomId = "room";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
+
+        Room room = mock(Room.class);
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(room.isAvailable(timeNow, timeInFuture)).thenReturn(false);
+
+        boolean result = bookingSystem.bookRoom(roomId, timeNow, timeInFuture);
+
+        assertThat(result).isFalse();
+    }
 }
