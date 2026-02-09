@@ -179,5 +179,12 @@ class BookingSystemTest {
                 .hasMessageContaining("Sluttid måste vara efter starttid");
     }
 
+    @Test
+    void throwExceptionIfParameterIsNullWhenCancelBooking() {
+        assertThatThrownBy(() -> bookingSystem.cancelBooking(null))
+                .hasMessageContaining("Boknings-id kan inte vara null");
+    }
+
+
 
 }
