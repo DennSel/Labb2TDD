@@ -72,10 +72,10 @@ class BookingSystemTest {
     @ParameterizedTest
     @CsvSource({
             ", 1337-01-29T13:37, 1337-01-29T13:38", // roomId null
-            "room, 1337-01-29T13:37,", // roomId null
-            "room,, 1337-01-29T13:38" // roomId null
+            "room, 1337-01-29T13:37,", // end time null
+            "room,, 1337-01-29T13:38" // start time null
     })
-    void throwExceptionIfAParameterIsNull (String roomId, LocalDateTime timeNow, LocalDateTime timeInFuture){
+    void throwExceptionIfAParameterIsNullWhenBookRoom (String roomId, LocalDateTime timeNow, LocalDateTime timeInFuture){
         assertThatThrownBy(() -> bookingSystem.bookRoom(roomId, timeNow, timeInFuture))
                 .isInstanceOf(IllegalArgumentException.class);
     }
@@ -157,4 +157,27 @@ class BookingSystemTest {
                 .containsExactly(room1, room4)
                 .hasSize(2);
     }
+
+    @ParameterizedTest
+    @CsvSource({
+            "1337-01-29T13:37,", // start time null
+            ",1337-01-29T13:38"// end time null
+    })
+    void throwExceptionIfAParameterIsNullWhenGetAvailableRooms (LocalDateTime timeNow, LocalDateTime timeInFuture){
+        assertThatThrownBy(() -> bookingSystem.getAvailableRooms(timeNow, timeInFuture))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Måste ange både start- och sluttid");
+    }
+
+    @Test
+    void throwExceptionIfEndTimeIsBeforeStartTimeWhenGetAvailableRooms(){
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
+
+        assertThatThrownBy(() -> bookingSystem.getAvailableRooms(timeInFuture, timeNow))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Sluttid måste vara efter starttid");
+    }
+
+
 }
