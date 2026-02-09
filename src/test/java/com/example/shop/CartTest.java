@@ -24,5 +24,13 @@ class CartTest {
         assertThat(cart.getItemCount()).isEqualTo(1);
     }
 
+    @Test
+    void testAddingMultipleItems() {
+        cart.addItem("item2", new BigDecimal("2.0"), 1);
+        cart.addItem("item3", new BigDecimal("3.0"), 1);
+
+        assertThat(cart.getItemCount()).isEqualTo(2);
+    }
+
 
 }
