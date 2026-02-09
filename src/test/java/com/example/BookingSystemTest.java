@@ -1,5 +1,6 @@
 package com.example;
 
+import net.bytebuddy.build.ToStringPlugin;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
@@ -149,6 +150,7 @@ class BookingSystemTest {
         when(room2.isAvailable(timeNow, timeInFuture)).thenReturn(false);
         when(room3.isAvailable(timeNow, timeInFuture)).thenReturn(false);
         when(room4.isAvailable(timeNow, timeInFuture)).thenReturn(true);
+
         when(roomRepository.findAll()).thenReturn(List.of(room1, room2, room3, room4));
 
         List<Room> result = bookingSystem.getAvailableRooms(timeNow,timeInFuture);
@@ -179,12 +181,43 @@ class BookingSystemTest {
                 .hasMessageContaining("Sluttid måste vara efter starttid");
     }
 
+
+    // CANCEL BOOKING //
     @Test
     void throwExceptionIfParameterIsNullWhenCancelBooking() {
         assertThatThrownBy(() -> bookingSystem.cancelBooking(null))
                 .hasMessageContaining("Boknings-id kan inte vara null");
     }
 
+    @Test
+    void returnsTrueIfBookingIsCancelledSuccessfully () throws NotificationException {
+        // Set up data
+        String bookingId = "bookingid";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
 
+        // Mock room with booking
+        Room room = mock(Room.class);
+        Booking booking = new Booking(bookingId, "roomid", timeNow, timeInFuture);
+
+        // Make sure the mocked room returns the booking
+        when(room.hasBooking(bookingId)).thenReturn(true);
+        when(room.getBooking(bookingId)).thenReturn(booking);
+
+        // Repository should return mocked room
+        when(roomRepository.findAll()).thenReturn(List.of(room));
+
+        // Self-explanatory
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+
+        // Test the method!
+        boolean result = bookingSystem.cancelBooking(bookingId);
+
+        // Verify result
+        assertThat(result).isTrue(); // True if canceled
+        verify(room).removeBooking(bookingId); // Make sure booking removed form room (could not have been there ever though)
+        verify(roomRepository).save(room); // Make sure room saved to repository
+        verify(notificationService).sendCancellationConfirmation(booking); // Make sure notification sent
+    }
 
 }
