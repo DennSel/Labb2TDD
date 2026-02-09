@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -132,5 +133,28 @@ class BookingSystemTest {
         assertThat(result).isTrue();
         verify(room).addBooking(any(Booking.class)); // Make sure booking is created
         verify(roomRepository).save(room); // Make sure room is saved
+    }
+
+    @Test
+    void returnOnlyAvailableRooms () {
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
+
+        Room room1 = mock(Room.class);
+        Room room2 = mock(Room.class);
+        Room room3 = mock(Room.class);
+        Room room4 = mock(Room.class);
+
+        when(room1.isAvailable(timeNow, timeInFuture)).thenReturn(true);
+        when(room2.isAvailable(timeNow, timeInFuture)).thenReturn(false);
+        when(room3.isAvailable(timeNow, timeInFuture)).thenReturn(false);
+        when(room4.isAvailable(timeNow, timeInFuture)).thenReturn(true);
+        when(roomRepository.findAll()).thenReturn(List.of(room1, room2, room3, room4));
+
+        List<Room> result = bookingSystem.getAvailableRooms(timeNow,timeInFuture);
+
+        assertThat(result)
+                .containsExactly(room1, room4)
+                .hasSize(2);
     }
 }
