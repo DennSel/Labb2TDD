@@ -1,6 +1,5 @@
 package com.example;
 
-import net.bytebuddy.build.ToStringPlugin;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.*;
@@ -220,4 +219,22 @@ class BookingSystemTest {
         verify(notificationService).sendCancellationConfirmation(booking); // Make sure notification sent
     }
 
+    @Test
+    void returnFalseIfBookingDoesntExist() {
+        // Set up data
+        String bookingId = "wrongBookingId";
+
+        // Create mock rooms
+        Room room1 = mock(Room.class);
+        Room room2 = mock(Room.class);
+
+        // Make repository return rooms
+        when(room1.hasBooking(bookingId)).thenReturn(false); // Return as booking doesn't exist
+        when(room2.hasBooking(bookingId)).thenReturn(false); // -||-
+        when(roomRepository.findAll()).thenReturn(List.of(room1, room2));
+
+        boolean result = bookingSystem.cancelBooking(bookingId);
+
+        assertThat(result).isFalse();
+    }
 }
