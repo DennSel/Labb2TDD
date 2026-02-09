@@ -6,13 +6,13 @@ import org.mockito.*;
 import static org.mockito.Mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 class BookingSystemTest {
@@ -79,5 +79,23 @@ class BookingSystemTest {
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void returnsTrueIfBookingIsCreatedSuccessfully(){
+        String roomId = "room";
+        LocalDateTime timeNow = LocalDateTime.of(1337, 1, 29, 12, 0);
+        LocalDateTime timeInFuture = timeNow.plusHours(1);
+
+        // Mock
+        Room room = mock(Room.class);
+        when(room.isAvailable(timeNow, timeInFuture)).thenReturn(true);
+        when(roomRepository.findById(roomId)).thenReturn(Optional.of(room));
+        when(timeProvider.getCurrentTime()).thenReturn(timeNow);
+
+        boolean result = bookingSystem.bookRoom(roomId, timeNow, timeInFuture);
+
+        assertThat(result).isTrue();
+        verify(room).addBooking(any(Booking.class));
+        verify(roomRepository).save(room);
+    }
 
 }
