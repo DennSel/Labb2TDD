@@ -15,4 +15,16 @@ public class Cart {
     public int getItemCount() {
         return items.size();
     }
+
+    public int getQuantity(String item) {
+        return items.get(item).quantity;
+    }
+
+    public boolean isItemPresent(String item) {
+        return items.containsKey(item);
+    }
+
+    public void removeItem(String item){
+        items.remove(item);
+    }
 }

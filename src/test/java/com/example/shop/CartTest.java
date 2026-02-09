@@ -32,5 +32,19 @@ class CartTest {
         assertThat(cart.getItemCount()).isEqualTo(2);
     }
 
+    @Test
+    void testAddingItemWithQuantity() {
+        cart.addItem("item", new BigDecimal("1.0"), 2);
+
+        assertThat(cart.getQuantity("item")).isEqualTo(2);
+    }
+
+    @Test
+    void removeItem() {
+        cart.addItem("item", new BigDecimal("1.0"), 1);
+        cart.removeItem("item");
+        assertThat(cart.isItemPresent("item")).isFalse();
+    }
+
 
 }
