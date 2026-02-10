@@ -49,6 +49,11 @@ public class Cart {
         BigDecimal percentAmount = new BigDecimal(percent);
         BigDecimal hundred = new BigDecimal("100");
 
+        // Return if discount already applied
+        if (discountPercent.compareTo(BigDecimal.ZERO) > 0) {
+            return;
+        }
+
         // Divide percent / 100
         this.discountPercent = percentAmount.divide(hundred, 2, RoundingMode.HALF_UP);
     }

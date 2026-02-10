@@ -66,4 +66,12 @@ class CartTest {
         assertThat(cart.calculateTotal()).isEqualByComparingTo("9.0");
     }
 
+    @Test
+    void shouldNotApplyMultipleDiscounts() {
+        cart.addItem("item", new BigDecimal("1.0"), 10);
+        cart.discount(10);
+        cart.discount(5); // Shouldn't apply multiple discounts
+
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("9.0");
+    }
 }
