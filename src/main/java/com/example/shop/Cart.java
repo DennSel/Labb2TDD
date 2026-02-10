@@ -62,12 +62,15 @@ public class Cart {
         this.discountPercent = percentAmount.divide(hundred, 2, RoundingMode.HALF_UP);
     }
 
-
     public void updateQuantity(String name, int updatedQuantity) {
         Item item = items.get(name);
-        
+
         if (item != null) {
-            item.quantity = updatedQuantity;
+            if (updatedQuantity <= 0) {
+                items.remove(name);
+            } else {
+                item.quantity = updatedQuantity;
+            }
         }
     }
 }
