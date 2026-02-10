@@ -88,4 +88,12 @@ class CartTest {
         assertThatThrownBy(() -> cart.discount(-1))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void updateQuantityOfItemInCart() {
+        cart.addItem("item", new BigDecimal("1.0"), 1);
+        cart.updateQuantity("item", 2);
+        assertThat(cart.getQuantity("item")).isEqualTo(2);
+    }
+
 }

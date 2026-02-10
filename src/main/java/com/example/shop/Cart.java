@@ -63,4 +63,11 @@ public class Cart {
     }
 
 
+    public void updateQuantity(String name, int updatedQuantity) {
+        Item item = items.get(name);
+        
+        if (item != null) {
+            item.quantity = updatedQuantity;
+        }
+    }
 }
