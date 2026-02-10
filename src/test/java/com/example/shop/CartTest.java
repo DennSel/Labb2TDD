@@ -74,4 +74,18 @@ class CartTest {
 
         assertThat(cart.calculateTotal()).isEqualByComparingTo("9.0");
     }
+
+    @Test
+    void applyInvalidDiscountThrowsException() {
+        cart.addItem("item", new BigDecimal("1.0"), 10);
+
+        // Percentage can't go above 100%
+        assertThatThrownBy(() -> cart.discount(101))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Discount must be between 0 and 100");
+
+        // Percentage can't go below 100%
+        assertThatThrownBy(() -> cart.discount(-1))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }

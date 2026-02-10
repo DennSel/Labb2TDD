@@ -49,6 +49,10 @@ public class Cart {
         BigDecimal percentAmount = new BigDecimal(percent);
         BigDecimal hundred = new BigDecimal("100");
 
+        // Throw exception if invalid percentage
+        if (percent < 0 || percent > 100) {
+            throw new IllegalArgumentException("Discount must be between 0 and 100");
+        }
         // Return if discount already applied
         if (discountPercent.compareTo(BigDecimal.ZERO) > 0) {
             return;
