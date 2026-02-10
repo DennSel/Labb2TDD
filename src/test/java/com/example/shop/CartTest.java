@@ -40,18 +40,24 @@ class CartTest {
     }
 
     @Test
-    void removeItem() {
+    void removeSpecificItemFromCart() {
         cart.addItem("item", new BigDecimal("1.0"), 1);
         cart.removeItem("item");
         assertThat(cart.isItemPresent("item")).isFalse();
     }
 
     @Test
-    void removeNonExistingItem() {
-        cart.removeItem("test");
+    void removeNonExistingItemFromCart() {
+        cart.removeItem("item");
         assertThat(cart.getItemCount()).isEqualTo(0);
     }
 
+    @Test
+    void calculateTotalPrice() {
+        cart.addItem("item", new BigDecimal("1.0"), 2);
+        cart.addItem("items2", new BigDecimal("2.0"), 1);
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("4.0");
+    }
 
 
 }

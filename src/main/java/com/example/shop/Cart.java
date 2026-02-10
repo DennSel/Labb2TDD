@@ -27,4 +27,13 @@ public class Cart {
     public void removeItem(String item){
         items.remove(item);
     }
+
+    public BigDecimal calculateTotal() {
+        BigDecimal total = BigDecimal.ZERO;
+        for (Item item : items.values()) {
+            BigDecimal itemTotal = item.price.multiply(new BigDecimal(item.quantity));
+            total = total.add(itemTotal);
+        }
+        return total;
+    }
 }
