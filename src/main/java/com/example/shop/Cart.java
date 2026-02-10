@@ -11,6 +11,16 @@ public class Cart {
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
     public void addItem(String itemName, BigDecimal price, int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be larger than 0");
+        }
+        if (price == null) {
+            throw new IllegalArgumentException("Price cannot be null");
+        }
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price should be positive");
+        }
+
         items.put(itemName, new Item(itemName, price, quantity));
     }
 
@@ -70,7 +80,7 @@ public class Cart {
         }
 
         if (item != null) {
-            if (updatedQuantity <= 0) {
+            if (updatedQuantity == 0) {
                 items.remove(name);
             } else {
                 item.quantity = updatedQuantity;

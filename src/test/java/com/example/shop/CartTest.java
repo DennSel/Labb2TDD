@@ -2,6 +2,8 @@ package com.example.shop;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -117,4 +119,46 @@ class CartTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Quantity should be positive");
     }
+
+
+    // Edge case tests //
+    @Test
+    void testEmptyCartTotal() {
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("0");
+    }
+
+    @Test
+    void applyZeroDiscount() {
+        cart.addItem("item", new BigDecimal("1.0"), 1);
+        cart.discount(0);
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("1.0");
+    }
+
+    @Test
+    void applyDiscountOnEmptyCart() {
+        cart.discount(10);
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("0");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "0", // Zero quantity
+            "-1", // Negative quantity
+    })
+    void addItemWithZeroOrNegativeQuantity(int quantity) {
+        assertThatThrownBy(() -> cart.addItem("item", new BigDecimal("1.0"), quantity))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "null", // null price
+            "-1", // Negative price
+    })
+    void addItemWithNullOrNegativePrice(String price) {
+        assertThatThrownBy(() -> cart.addItem("item", new BigDecimal(price), 1))
+                .isInstanceOf(IllegalArgumentException.class);
+
+    }
+
 }
