@@ -108,4 +108,13 @@ class CartTest {
 
         assertThat(cart.isItemPresent("item")).isFalse();
     }
+
+    @Test
+    void throwExceptionWhenUpdateQuantityIsNegative() {
+        cart.addItem("item", new BigDecimal("1.0"), 1);
+
+        assertThatThrownBy(() -> cart.updateQuantity("item", -1))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Quantity should be positive");
+    }
 }

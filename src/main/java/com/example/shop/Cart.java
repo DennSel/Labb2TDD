@@ -65,6 +65,10 @@ public class Cart {
     public void updateQuantity(String name, int updatedQuantity) {
         Item item = items.get(name);
 
+        if (updatedQuantity < 0) {
+            throw new IllegalArgumentException("Quantity should be positive");
+        }
+
         if (item != null) {
             if (updatedQuantity <= 0) {
                 items.remove(name);
