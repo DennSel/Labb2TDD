@@ -59,5 +59,11 @@ class CartTest {
         assertThat(cart.calculateTotal()).isEqualByComparingTo("4.0");
     }
 
+    @Test
+    void applyDiscountToCart() {
+        cart.addItem("item", new BigDecimal("10.0"), 1);
+        cart.discount(10);
+        assertThat(cart.calculateTotal()).isEqualByComparingTo("9.0");
+    }
 
 }
